@@ -1,1 +1,74 @@
-aiueo
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>口コミ1</title>
+</head>
+<body>
+    <div id="comments"></div>  
+    <form onsubmit="submitComment(); return false;">
+        <p><input name="entry.223807672" placeholder="名前" value="名無し" required></p>
+        <p><input name="entry.508567591" placeholder="メールアドレス" type="email"></p>
+        <p><textarea name="entry.183273517" placeholder="コメント" rows="10" cols="40" maxlength="400" id="commentText" required></textarea></p>
+        <input type="submit" id="submitbutton" value="送信">
+    </form>
+
+    <!-- 送信されたコメントを表示する -->
+    <div id="submitted_comments"></div>
+
+    <!-- NGワードのチェックと入力値の処理 -->
+    <script type="text/javascript">
+        var NGComments = ["死ね", "バカ", ".exe"]; // 簡易的なNGワードの設定
+        var regex = new RegExp(NGComments.join("|"));
+
+        function validateComment(commentText) {
+            if (commentText.match(regex) != null) {
+                alert("ERROR: コメントにNGワードが含まれています");
+                return false;
+            }
+            return true;
+        }
+
+        function submitComment() {
+            var name = document.querySelector('input[name="entry.223807672"]').value;
+            var email = document.querySelector('input[name="entry.508567591"]').value;
+            var comment = document.getElementById("commentText").value;
+            
+            if (validateComment(comment)) {
+                var newComment = "<p><strong>" + name + "</strong> (" + email + "): " + comment + "</p>";
+                document.getElementById("submitted_comments").innerHTML += newComment;
+                document.getElementById("commentText").value = ""; // コメントフォームを空にする
+
+                // ローカルストレージにコメントを保存
+                var commentsFromLocalStorage = localStorage.getItem("comments");
+                var commentsArray = commentsFromLocalStorage ? JSON.parse(commentsFromLocalStorage) : [];
+                var newCommentObject = { name: name, email: email, comment: comment };
+                commentsArray.push(newCommentObject);
+                localStorage.setItem("comments", JSON.stringify(commentsArray));
+            }
+        }
+
+        // ページが読み込まれたときにローカルストレージからコメントを読み込む
+        window.onload = function() {
+            var commentsFromLocalStorage = localStorage.getItem("comments");
+            if (commentsFromLocalStorage) {
+                var commentsArray = JSON.parse(commentsFromLocalStorage);
+                var commentsHTML = "";
+                commentsArray.forEach(function(commentObject) {
+                    commentsHTML += "<p><strong>" + commentObject.name + "</strong> (" + commentObject.email + "): " + commentObject.comment + "</p>";
+                });
+                document.getElementById("submitted_comments").innerHTML = commentsHTML;
+            }
+        }
+    </script>
+</body>
+</html>
+               
+
+
+
+
+
+
+
